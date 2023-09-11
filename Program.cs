@@ -2,19 +2,19 @@
 // Couldn't put it right above EngineContext class because the class wasn't defined yet
 // and I didn't want to just put it under it
 // and I also didn't want to put it in a random file.
-global using EC = EngineContext;
+global using Ctx = EngineContext;
 
 new Engine()
     // --- Startup Systems ---
     .AddStartupSystems(Orb.Startup)
     // --- Update Systems ---
     .AddUpdateSystems(
-        Orb.DrawOrbCounter,
         Orb.BounceOrbs,
         Orb.AddOrbOnClick,
         Orb.OrbGravity,
         Orb.DrawOrbs,
-        GenericSystems.MovePositions
+        GenericSystems.MovePositions,
+        Orb.DrawOrbCounter
     )
     // --- Resources ---
     .AddResources(
