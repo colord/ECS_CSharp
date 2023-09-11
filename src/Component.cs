@@ -22,3 +22,5 @@ public class Circle : Component
 }
 
 public class CircleWallBounce : Component { }
+
+public class CenterGravity : Component { }
