@@ -1,6 +1,5 @@
 global using Raylib_cs;
 using System.Collections;
-using System.ComponentModel;
 
 public class EntityQuery<T, U> : IEnumerable<T> where T : U
 {
