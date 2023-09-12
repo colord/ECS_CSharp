@@ -1,6 +1,6 @@
 public static class GenericSystems
 {
-    public static void LogPositions(EngineContext ctx)
+    public static void MovePositions(EC ctx)
     {
         var qry = ctx.Query<Position, Velocity>();
 
