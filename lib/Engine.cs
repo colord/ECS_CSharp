@@ -21,11 +21,12 @@ public class EntityQuery<T, U> : IEnumerable<T> where T : U
     }
 }
 
-public class EngineContext
+public partial class EngineContext
 {
     private uint currentEntityID = 0;
     public Dictionary<Type, List<Component>> componentArrays = new();
     private Dictionary<Type, object> resources = new();
+    private Dictionary<TypeKey, Dictionary<Type, List<Component>>> componentSets = new();
 
     public EngineContext(Dictionary<Type, object> resources)
     {
@@ -39,12 +40,12 @@ public class EngineContext
         return default;
     }
 
-    public void AddEntity(params Component?[] components)
+    public void AddEntity(params Component?[] addedComponents)
     {
+        Component[] components = addedComponents.Where(comp => comp != null).ToArray();
+
         foreach (var component in components)
         {
-            if (component == null) continue;
-
             component.entityID = this.currentEntityID;
             var type = component.GetType();
             if (this.componentArrays.ContainsKey(type))
@@ -56,75 +57,43 @@ public class EngineContext
                 this.componentArrays[type] = new() { component };
             }
         }
+
+        var set = new HashSet<Type>(components.Select(comp => comp.GetType()));
+
+        outerloop2:
+        foreach (var key in componentSet2.Keys)
+        {
+            foreach (var type in key.GetTypes())
+            {
+                if (!set.Contains(type)) goto outerloop2;
+            }
+
+            if (!this.componentSet2.Remove(key)) WriteLine("Components not removed from set 2!");
+        }
+
+        outerloop3:
+        foreach (var key in componentSet3.Keys)
+        {
+            foreach (var type in key.GetTypes())
+            {
+                if (!set.Contains(type)) goto outerloop3;
+            }
+
+            if (!this.componentSet3.Remove(key)) WriteLine("Components not removed from set 3!");
+        }
+
+        outerloop4:
+        foreach (var key in componentSet4.Keys)
+        {
+            foreach (var type in key.GetTypes())
+            {
+                if (!set.Contains(type)) goto outerloop4;
+            }
+
+            if (!this.componentSet4.Remove(key)) WriteLine("Components not removed from set 4!");
+        }
+
         this.currentEntityID++;
-    }
-    public List<T> Query<T>() where T : Component
-    {
-        if (!this.componentArrays.TryGetValue(typeof(T), out var components)) return new List<T>();
-        return new EntityQuery<T, Component>(components).ToList();
-    }
-    public List<(T1, T2)> Query<T1, T2>()
-        where T1 : Component
-        where T2 : Component
-    {
-        if (!this.componentArrays.TryGetValue(typeof(T1), out var components1) ||
-            !this.componentArrays.TryGetValue(typeof(T2), out var components2)) return new List<(T1, T2)>();
-
-        var joinedList = from c1 in components1
-                         join c2 in components2 on c1.entityID equals c2.entityID
-                         select
-                         (
-                             (T1)c1,
-                             (T2)c2
-                         );
-
-        return joinedList.ToList();
-    }
-    public List<(T1, T2, T3)> Query<T1, T2, T3>()
-        where T1 : Component
-        where T2 : Component
-        where T3 : Component
-    {
-        if (!this.componentArrays.TryGetValue(typeof(T1), out var components1) ||
-            !this.componentArrays.TryGetValue(typeof(T2), out var components2) ||
-            !this.componentArrays.TryGetValue(typeof(T3), out var components3)) return new List<(T1, T2, T3)>();
-
-        var joinedList = from c1 in components1
-                         join c2 in components2 on c1.entityID equals c2.entityID
-                         join c3 in components3 on c1.entityID equals c3.entityID
-                         select
-                         (
-                             (T1)c1,
-                             (T2)c2,
-                             (T3)c3
-                         );
-
-        return joinedList.ToList();
-    }
-    public List<(T1, T2, T3, T4)> Query<T1, T2, T3, T4>()
-        where T1 : Component
-        where T2 : Component
-        where T3 : Component
-        where T4 : Component
-    {
-        if (!this.componentArrays.TryGetValue(typeof(T1), out var components1) ||
-            !this.componentArrays.TryGetValue(typeof(T2), out var components2) ||
-            !this.componentArrays.TryGetValue(typeof(T3), out var components3) ||
-            !this.componentArrays.TryGetValue(typeof(T4), out var components4)) return new List<(T1, T2, T3, T4)>();
-
-        var joinedList = from c1 in components1
-                         join c2 in components2 on c1.entityID equals c2.entityID
-                         join c3 in components3 on c1.entityID equals c3.entityID
-                         join c4 in components4 on c1.entityID equals c4.entityID
-                         select
-                         (
-                             (T1)c1,
-                             (T2)c2,
-                             (T3)c3,
-                             (T4)c4
-                         );
-
-        return joinedList.ToList();
     }
 }
 
@@ -183,8 +152,8 @@ public class Engine
         {
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Constants.BACKGROUND_COLOR);
-            Raylib.DrawFPS(10, 10);
             this.RunUpdateSystems();
+            Raylib.DrawFPS(10, 10);
             Raylib.EndDrawing();
         }
 

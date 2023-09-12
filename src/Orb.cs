@@ -6,7 +6,7 @@ public static class Orb
 
     public static Texture2D orbTexture;
 
-    public static void Startup(EC ctx)
+    public static void Startup(Ctx ctx)
     {
         // Just trying this out
         // I tested it and draw textures is at least twice as fast as drawing circles using DrawCircle()
@@ -20,15 +20,17 @@ public static class Orb
         WriteLine("Orb Startup!");
     }
 
-    public static void DrawOrbCounter(EC ctx)
+    public static void DrawOrbCounter(Ctx ctx)
     {
         var counter = ctx.GetResource<OrbCounter>();
         Raylib.DrawText($"Orbs: {counter!.count}", 10, 40, 20, Color.BLACK);
     }
 
-    public static void DrawOrbs(EC ctx)
+    public static void DrawOrbs(Ctx ctx)
     {
         var qry = ctx.Query<Position, Circle>();
+
+        // WriteLine($"Query: {qry}");
 
         foreach (var (position, circle) in qry)
         {
@@ -40,7 +42,7 @@ public static class Orb
         }
     }
 
-    public static void BounceOrbs(EC ctx)
+    public static void BounceOrbs(Ctx ctx)
     {
         var qry = ctx.Query<Position, Velocity, Circle, CircleWallBounce>();
 
@@ -69,15 +71,15 @@ public static class Orb
         }
     }
 
-    public static void AddOrbOnClick(EC ctx)
+    public static void AddOrbOnClick(Ctx ctx)
     {
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            for (var i = 0; i < 100; i++) AddOrb(ctx);
+            for (var i = 0; i < 1000; i++) AddOrb(ctx);
         }
     }
 
-    public static void OrbGravity(EC ctx)
+    public static void OrbGravity(Ctx ctx)
     {
         var qry = ctx.Query<Position, Velocity, CenterGravity>();
 
@@ -91,7 +93,7 @@ public static class Orb
         }
     }
 
-    private static void AddOrb(EC ctx)
+    private static void AddOrb(Ctx ctx)
     {
         var counter = ctx.GetResource<OrbCounter>();
         counter!.count++;
@@ -117,8 +119,8 @@ public static class Orb
                 radius = Raylib.GetRandomValue(5, 20),
                 color = orbColors[Raylib.GetRandomValue(0, orbColors.Count()-1)]
             },
-            new CircleWallBounce(),
-            new CenterGravity()
+            new CircleWallBounce()
+            // new CenterGravity()
             //Raylib.GetRandomValue(0, 1) == 0 ? null : new CenterGravity()
         );
     }
