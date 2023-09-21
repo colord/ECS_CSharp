@@ -75,7 +75,7 @@ public static class Orb
     {
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
         {
-            for (var i = 0; i < 1000; i++) AddOrb(ctx);
+            for (var i = 0; i < 10000; i++) AddOrb(ctx);
         }
     }
 
@@ -106,7 +106,8 @@ public static class Orb
 
         ctx.AddEntity(
             //new Position { x = Raylib.GetRandomValue(0, Constants.WINDOW_WIDTH), y = Raylib.GetRandomValue(0, Constants.WINDOW_HEIGHT) },
-            new Position {
+            new Position
+            {
                 x = mx + Raylib.GetRandomValue(-100, 100),
                 y = my + Raylib.GetRandomValue(-100, 100)
             },
@@ -115,13 +116,14 @@ public static class Orb
                 x = (float)(Math.Cos(offAngle) * magnitude),
                 y = (float)(Math.Sin(offAngle) * magnitude)
             },
-            new Circle {
+            new Circle
+            {
                 radius = Raylib.GetRandomValue(5, 20),
-                color = orbColors[Raylib.GetRandomValue(0, orbColors.Count()-1)]
+                color = orbColors[Raylib.GetRandomValue(0, orbColors.Count() - 1)]
             },
             new CircleWallBounce()
-            // new CenterGravity()
-            //Raylib.GetRandomValue(0, 1) == 0 ? null : new CenterGravity()
+        // new CenterGravity()
+        //Raylib.GetRandomValue(0, 1) == 0 ? null : new CenterGravity()
         );
     }
 }

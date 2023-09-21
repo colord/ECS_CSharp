@@ -1,5 +1,68 @@
 ﻿public partial class EngineContext
 {
+    private Dictionary<TypeKey, List<List<Component>>> componentCache = new();
+    public List<List<Component>> Query(params Type[] types)
+    {
+        var typeKey = new TypeKey(types);
+
+        if (this.componentCache.TryGetValue(typeKey, out var cache))
+        {
+            if (cache == null) this.componentCache.Remove(typeKey);
+            else return cache;
+        }
+
+        if (types.Length == 0)
+        {
+            return new List<List<Component>>();
+        }
+
+        List<List<Component>> groupList = new();
+
+        if (this.componentArrays.TryGetValue(types[0], out var components))
+        {
+            groupList = components.Select(c => new List<Component>() { c }).ToList();
+        }
+        else
+        {
+            return new List<List<Component>>();
+        }
+
+        if (types.Length == 1)
+        {
+            return groupList;
+        }
+
+        foreach (var type in types)
+        {
+            if (type == types[0]) continue;
+
+            List<Component> nextList = this.componentArrays[type];
+            int lastAdd = 0;
+
+            foreach (var group in groupList)
+            {
+                for (int i = lastAdd; i < nextList.Count; i++)
+                {
+                    var next = nextList[i];
+
+                    if (group[0].entityID == next.entityID)
+                    {
+                        group.Add(next);
+                        lastAdd = i + 1;
+                        goto outer;
+                    }
+                }
+                groupList.Remove(group);
+            outer:
+                continue;
+            }
+        }
+
+        this.componentCache.Add(typeKey, groupList);
+
+        return groupList;
+    }
+
     public List<T> Query<T>() where T : Component
     {
         if (!this.componentArrays.TryGetValue(typeof(T), out var components))
@@ -26,16 +89,16 @@
         }
 
 
-            if (!this.componentArrays.TryGetValue(typeof(T1), out var components1) ||
-            !this.componentArrays.TryGetValue(typeof(T2), out var components2)) return new List<(T1, T2)>();
+        if (!this.componentArrays.TryGetValue(typeof(T1), out var components1) ||
+        !this.componentArrays.TryGetValue(typeof(T2), out var components2)) return new List<(T1, T2)>();
 
         var joined = from c1 in components1
-                         join c2 in components2 on c1.entityID equals c2.entityID
-                         select
-                         (
-                             (T1)c1,
-                             (T2)c2
-                         );
+                     join c2 in components2 on c1.entityID equals c2.entityID
+                     select
+                     (
+                         (T1)c1,
+                         (T2)c2
+                     );
 
         var joinedList = joined.ToList();
 

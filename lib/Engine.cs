@@ -36,7 +36,7 @@ public partial class EngineContext
     public T? GetResource<T>()
     {
         if (resources.TryGetValue(typeof(T), out var resource))
-            return (T) resource;
+            return (T)resource;
         return default;
     }
 
@@ -60,7 +60,18 @@ public partial class EngineContext
 
         var set = new HashSet<Type>(components.Select(comp => comp.GetType()));
 
-        outerloop2:
+    outerloop:
+        foreach (var key in componentCache.Keys)
+        {
+            foreach (var type in key.GetTypes())
+            {
+                if (!set.Contains(type)) goto outerloop;
+            }
+
+            if (!this.componentCache.Remove(key)) WriteLine("Components not removed from set 2!");
+        }
+
+    outerloop2:
         foreach (var key in componentSet2.Keys)
         {
             foreach (var type in key.GetTypes())
@@ -71,7 +82,7 @@ public partial class EngineContext
             if (!this.componentSet2.Remove(key)) WriteLine("Components not removed from set 2!");
         }
 
-        outerloop3:
+    outerloop3:
         foreach (var key in componentSet3.Keys)
         {
             foreach (var type in key.GetTypes())
@@ -82,7 +93,7 @@ public partial class EngineContext
             if (!this.componentSet3.Remove(key)) WriteLine("Components not removed from set 3!");
         }
 
-        outerloop4:
+    outerloop4:
         foreach (var key in componentSet4.Keys)
         {
             foreach (var type in key.GetTypes())
